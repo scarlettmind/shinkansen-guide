@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>UV Guard · 紫外线防护助手</title>
+
+<!-- SEO -->
+<meta name="description" content="实时紫外线指数检测，自动识别室内外，智能防晒霜涂抹提醒。保护你的皮肤，从今天开始。">
+<meta name="keywords" content="紫外线,防晒,UV指数,皮肤防护,防晒提醒">
+<meta name="author" content="UV Guard">
+
+<!-- WeChat / Open Graph share card -->
+<meta property="og:title" content="UV Guard · 紫外线防护助手">
+<meta property="og:description" content="实时UV指数 · 自动识别室内外 · 智能防晒提醒 · 皮肤伤害分析">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://em-content.zobj.net/source/apple/391/sun_2600-fe0f.png">
+<meta property="og:image:width" content="256">
+<meta property="og:image:height" content="256">
+<meta property="og:locale" content="zh_CN">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UV Guard · 紫外线防护助手">
+<meta name="twitter:description" content="实时UV指数 · 自动识别室内外 · 智能防晒提醒">
+<meta name="twitter:image" content="https://em-content.zobj.net/source/apple/391/sun_2600-fe0f.png">
+
+<!-- iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="UV Guard">
+
+<!-- Theme color (browser chrome) -->
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f2f2f7;
+  --bg2: #ffffff;
+  --bg3: #e5e5ea;
+  --text: #1c1c1e;
+  --text2: #3a3a3c;
+  --text3: #8e8e93;
+  --separator: rgba(60,60,67,0.12);
+  --blue: #007aff;
+  --green: #34c759;
+  --orange: #ff9500;
+  --red: #ff3b30;
+  --yellow: #ffcc00;
+  --purple: #af52de;
+  --teal: #5ac8fa;
+  --card-radius: 18px;
+  --font: 'DM Sans', -apple-system, 'SF Pro Display', sans-serif;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --bg2: #1c1c1e;
+    --bg3: #2c2c2e;
+    --text: #ffffff;
+    --text2: #ebebf5cc;
+    --text3: #ebebf599;
+    --separator: rgba(84,84,88,0.6);
+  }
+}
+
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.scroll-root {
+  min-height: 100vh;
+  padding: 0 0 calc(32px + var(--safe-area-bottom));
+}
+
+/* ---- STATUS BAR AREA ---- */
+.status-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 0;
+}
+
+.status-time {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.status-icons { display: flex; gap: 5px; align-items: center; color: var(--text); font-size: 12px; }
+
+/* ---- HEADER ---- */
+.page-header {
+  padding: 8px 20px 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.page-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  line-height: 1.05;
+}
+
+.env-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg2);
+  border: none;
+  border-radius: 20px;
+  padding: 7px 13px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.06);
+  transition: transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.env-pill:active { transform: scale(0.96); }
+.env-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  transition: background 0.4s;
+}
+.env-pill.indoor .env-dot { background: var(--blue); }
+
+/* ---- MAIN UV CARD ---- */
+.uv-hero {
+  margin: 16px 16px 0;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  position: relative;
+  background: var(--uv-grad, linear-gradient(145deg, #34c759, #30d158));
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  transition: background 0.8s ease;
+  min-height: 200px;
+}
+
+.uv-hero-inner {
+  padding: 24px 24px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.uv-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.uv-category {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+}
+
+.uv-big-num {
+  font-size: 80px;
+  font-weight: 700;
+  letter-spacing: -4px;
+  line-height: 1;
+  color: white;
+  font-variant-numeric: tabular-nums;
+}
+
+.uv-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.uv-level-badge {
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.uv-env-badge {
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+}
+
+.uv-hero-bottom {
+  margin-top: 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.uv-desc-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.4;
+  max-width: 200px;
+  font-weight: 400;
+}
+
+.uv-burn-badge {
+  background: rgba(0,0,0,0.18);
+  border-radius: 10px;
+  padding: 6px 10px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.uv-burn-num {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  font-variant-numeric: tabular-nums;
+}
+
+.uv-burn-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+}
+
+/* sparkle blobs */
+.uv-blob {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  pointer-events: none;
+}
+
+/* ---- SECTION HEADER ---- */
+.section-header {
+  padding: 22px 20px 8px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.section-sub {
+  font-size: 13px;
+  color: var(--text3);
+  font-weight: 400;
+}
+
+/* ---- SUNSCREEN LOG CARD ---- */
+.sunscreen-card {
+  margin: 0 16px;
+  background: var(--bg2);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+
+/* Next reminder banner */
+.next-banner {
+  background: var(--orange);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.5s;
+}
+
+.next-banner.ok { background: var(--green); }
+.next-banner.urgent { background: var(--red); }
+.next-banner.low { background: var(--blue); }
+
+.next-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+
+.next-time {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.next-in {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  text-align: right;
+}
+
+/* Apply button */
+.apply-btn {
+  width: calc(100% - 36px);
+  margin: 14px 18px;
+  background: var(--orange);
+  border: none;
+  border-radius: 13px;
+  padding: 15px;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.12s, filter 0.12s, opacity 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.apply-btn:active { transform: scale(0.97); filter: brightness(0.92); }
+.apply-btn.applied { background: var(--green); }
+.apply-btn.low-uv { background: var(--blue); opacity: 0.7; pointer-events: none; }
+
+.apply-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  transform: scale(0);
+  animation: ripple 0.5s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* Log list */
+.log-separator {
+  height: 0.5px;
+  background: var(--separator);
+  margin: 0 18px;
+}
+
+.log-header {
+  padding: 10px 18px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.log-list {
+  padding: 0 0 4px;
+}
+
+.log-item {
+  display: flex;
+  align-items: center;
+  padding: 11px 18px;
+  gap: 12px;
+  transition: background 0.12s;
+  cursor: pointer;
+  animation: slideIn 0.3s cubic-bezier(.4,0,.2,1) both;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.log-item:active { background: rgba(0,0,0,0.04); }
+
+.log-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(255,149,0,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.log-icon.past { background: rgba(142,142,147,0.12); }
+
+.log-content { flex: 1; }
+
+.log-time {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.log-time.past { color: var(--text3); }
+
+.log-meta {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 1px;
+}
+
+.log-check {
+  font-size: 20px;
+  color: var(--green);
+}
+
+.log-future { color: var(--text3); font-size: 17px; }
+.log-del {
+  font-size: 13px;
+  color: var(--red);
+  padding: 4px 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.log-item:hover .log-del { opacity: 1; }
+
+.empty-log {
+  padding: 18px 18px 14px;
+  font-size: 14px;
+  color: var(--text3);
+  text-align: center;
+}
+
+/* ---- TIMELINE CARD ---- */
+.timeline-card {
+  margin: 12px 16px 0;
+  background: var(--bg2);
+  border-radius: var(--card-radius);
+  padding: 18px 18px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+
+.card-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 14px;
+}
+
+.uv-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 72px;
+}
+
+.uv-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.uv-bar {
+  width: 100%;
+  border-radius: 5px 5px 3px 3px;
+  transition: height 0.6s cubic-bezier(.4,0,.2,1), background 0.5s;
+  min-height: 4px;
+  position: relative;
+}
+
+.uv-bar.now-marker::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.uv-bar-lbl {
+  font-size: 10px;
+  color: var(--text3);
+  font-weight: 500;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.uv-bar-lbl.now { color: var(--blue); font-weight: 700; }
+
+/* ---- STATS GRID ---- */
+.stats-grid {
+  margin: 12px 16px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat-card {
+  background: var(--bg2);
+  border-radius: var(--card-radius);
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+
+.stat-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 4px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* ---- DAMAGE CARD ---- */
+.damage-card {
+  margin: 12px 16px 0;
+  background: var(--bg2);
+  border-radius: var(--card-radius);
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+
+.damage-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.damage-row + .damage-row {
+  border-top: 0.5px solid var(--separator);
+}
+
+.damage-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text2);
+  width: 56px;
+  flex-shrink: 0;
+}
+
+.damage-track {
+  flex: 1;
+  height: 5px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.damage-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1.2s cubic-bezier(.4,0,.2,1);
+}
+
+.damage-val {
+  font-size: 13px;
+  font-weight: 600;
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ---- SKIN PICKER ---- */
+.skin-card {
+  margin: 12px 16px 0;
+  background: var(--bg2);
+  border-radius: var(--card-radius);
+  padding: 16px 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+
+.skin-picker {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.skin-option {
+  flex: 1;
+  border: 1.5px solid var(--separator);
+  border-radius: 12px;
+  padding: 10px 6px;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.18s;
+  text-align: center;
+}
+
+.skin-option.active {
+  border-color: var(--blue);
+  background: rgba(0,122,255,0.07);
+}
+
+.skin-swatch {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  margin: 0 auto 5px;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.skin-name {
+  font-size: 11px;
+  color: var(--text2);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* ---- REC CARD ---- */
+.rec-card {
+  margin: 12px 16px 0;
+  background: var(--bg2);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04);
+}
+
+.rec-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 18px;
+}
+
+.rec-row + .rec-row { border-top: 0.5px solid var(--separator); }
+
+.rec-ico {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: rgba(0,122,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.rec-text {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+/* ---- TOAST ---- */
+.toast {
+  position: fixed;
+  bottom: calc(28px + var(--safe-area-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: rgba(28,28,30,0.92);
+  backdrop-filter: blur(20px) saturate(1.5);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 999;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; }
+
+/* ---- MODAL ---- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+
+.modal-sheet {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg);
+  border-radius: 22px 22px 0 0;
+  padding: 8px 0 32px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(.32,0,.67,0);
+}
+
+.modal-overlay.show .modal-sheet {
+  transform: translateY(0);
+  transition: transform 0.35s cubic-bezier(.22,1,.36,1);
+}
+
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--separator);
+  border-radius: 2px;
+  margin: 8px auto 18px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.modal-sub {
+  font-size: 13px;
+  color: var(--text3);
+  text-align: center;
+  margin-bottom: 18px;
+  padding: 0 24px;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 13px;
+  border: none;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--blue);
+  color: white;
+  transition: filter 0.12s;
+}
+
+.modal-btn:active { filter: brightness(0.9); }
+.modal-btn.cancel { background: var(--bg2); color: var(--text); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08); font-weight: 500; }
+
+/* ---- DETECTION BANNER ---- */
+.detect-banner {
+  margin: 10px 16px 0;
+  background: rgba(0,122,255,0.08);
+  border: 1px solid rgba(0,122,255,0.2);
+  border-radius: 13px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--blue);
+  font-weight: 500;
+}
+
+.detect-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(0,122,255,0.3);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Footer */
+.footer-note {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text3);
+  padding: 24px 24px 0;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Pulse on new log */
+@keyframes highlight-pulse {
+  0% { background: rgba(52,199,89,0.15); }
+  100% { background: transparent; }
+}
+
+.log-item.new-flash { animation: slideIn 0.3s cubic-bezier(.4,0,.2,1) both, highlight-pulse 1.2s 0.3s ease forwards; }
+</style>
+</head>
+<body>
+<div class="scroll-root">
+
+  <!-- Status -->
+  <div class="status-area">
+    <div class="status-time" id="status-time">9:41</div>
+    <div class="status-icons">
+      <span id="loc-icon">📍</span>
+      <span>⚡</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-title">紫外线</div>
+    <button class="env-pill" id="env-pill" onclick="toggleEnv()">
+      <div class="env-dot" id="env-dot"></div>
+      <span id="env-label">检测中…</span>
+    </button>
+  </div>
+
+  <!-- Detection banner (shown briefly) -->
+  <div class="detect-banner" id="detect-banner">
+    <div class="detect-spinner"></div>
+    <span>正在通过光线传感器判断室内外…</span>
+  </div>
+
+  <!-- UV Hero -->
+  <div class="uv-hero" id="uv-hero" style="margin-top:14px;">
+    <div class="uv-blob" style="width:180px;height:180px;top:-50px;right:-30px;"></div>
+    <div class="uv-blob" style="width:100px;height:100px;bottom:-20px;left:20px;"></div>
+    <div class="uv-hero-inner">
+      <div class="uv-hero-top">
+        <div>
+          <div class="uv-category">紫外线指数</div>
+          <div class="uv-big-num" id="uv-num">—</div>
+        </div>
+        <div class="uv-right">
+          <div class="uv-level-badge" id="uv-badge">加载中</div>
+          <div class="uv-env-badge" id="uv-env-badge">—</div>
+        </div>
+      </div>
+      <div class="uv-hero-bottom">
+        <div class="uv-desc-text" id="uv-desc">获取当前位置紫外线数据…</div>
+        <div class="uv-burn-badge" id="burn-badge" style="display:none">
+          <div class="uv-burn-num" id="burn-num">—</div>
+          <div class="uv-burn-label">分钟后灼伤</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skin selector -->
+  <div class="skin-card" style="margin-top:14px;">
+    <div class="card-label">肤质类型</div>
+    <div class="skin-picker" id="skin-picker">
+      <button class="skin-option" onclick="setSkin(0)" id="s0">
+        <div class="skin-swatch" style="background:#fde8d0"></div>
+        <div class="skin-name">I型<br>极白</div>
+      </button>
+      <button class="skin-option active" onclick="setSkin(1)" id="s1">
+        <div class="skin-swatch" style="background:#deb887"></div>
+        <div class="skin-name">II型<br>白皙</div>
+      </button>
+      <button class="skin-option" onclick="setSkin(2)" id="s2">
+        <div class="skin-swatch" style="background:#c8a882"></div>
+        <div class="skin-name">III型<br>中等</div>
+      </button>
+      <button class="skin-option" onclick="setSkin(3)" id="s3">
+        <div class="skin-swatch" style="background:#8d5524"></div>
+        <div class="skin-name">IV型<br>偏深</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Sunscreen section -->
+  <div class="section-header">
+    <div class="section-title">防晒记录</div>
+    <div class="section-sub" id="spf-badge">SPF 30+</div>
+  </div>
+
+  <div class="sunscreen-card">
+    <!-- Next reminder banner -->
+    <div class="next-banner ok" id="next-banner">
+      <div>
+        <div class="next-label">下次涂抹</div>
+        <div class="next-time" id="next-time">—</div>
+      </div>
+      <div class="next-in" id="next-in">—</div>
+    </div>
+
+    <!-- Apply button -->
+    <button class="apply-btn" id="apply-btn" onclick="onApply(event)">
+      <span>🧴</span>
+      <span id="apply-btn-text">我已涂好防晒霜</span>
+    </button>
+
+    <!-- Log -->
+    <div class="log-separator"></div>
+    <div class="log-header">今日记录</div>
+    <div class="log-list" id="log-list">
+      <div class="empty-log">点击上方按钮记录涂抹时间</div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline-card" style="margin-top:12px;">
+    <div class="card-label">全天UV曲线</div>
+    <div class="uv-bars" id="uv-bars"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-value" id="stat-burn" style="color:var(--red)">—</div>
+      <div class="stat-label">裸肤灼伤时间</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-value" id="stat-dose" style="color:var(--orange)">0%</div>
+      <div class="stat-label">今日UV累积剂量</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔢</div>
+      <div class="stat-value" id="stat-count" style="color:var(--blue)">0</div>
+      <div class="stat-label">今日涂抹次数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🌡️</div>
+      <div class="stat-value" id="stat-peak" style="color:var(--purple)">—</div>
+      <div class="stat-label">今日UV峰值时段</div>
+    </div>
+  </div>
+
+  <!-- Damage -->
+  <div class="damage-card" style="margin-top:12px;">
+    <div class="card-label" style="margin-bottom:4px;">皮肤伤害风险</div>
+    <div class="damage-row">
+      <div class="damage-name">晒红</div>
+      <div class="damage-track"><div class="damage-fill" id="d-red" style="width:0%;background:var(--red)"></div></div>
+      <div class="damage-val" id="d-red-v" style="color:var(--red)">—</div>
+    </div>
+    <div class="damage-row">
+      <div class="damage-name">晒黑</div>
+      <div class="damage-track"><div class="damage-fill" id="d-tan" style="width:0%;background:var(--orange)"></div></div>
+      <div class="damage-val" id="d-tan-v" style="color:var(--orange)">—</div>
+    </div>
+    <div class="damage-row">
+      <div class="damage-name">DNA</div>
+      <div class="damage-track"><div class="damage-fill" id="d-dna" style="width:0%;background:var(--purple)"></div></div>
+      <div class="damage-val" id="d-dna-v" style="color:var(--purple)">—</div>
+    </div>
+    <div class="damage-row">
+      <div class="damage-name">光老化</div>
+      <div class="damage-track"><div class="damage-fill" id="d-age" style="width:0%;background:var(--yellow)"></div></div>
+      <div class="damage-val" id="d-age-v" style="color:var(--text3)">—</div>
+    </div>
+  </div>
+
+  <!-- Recs -->
+  <div class="section-header" style="padding-top:18px;">
+    <div class="section-title">防护建议</div>
+  </div>
+  <div class="rec-card" id="rec-card"></div>
+
+  <div class="footer-note">
+    基于WHO紫外线指数标准 · Fitzpatrick皮肤分类<br>
+    室内外识别使用光线传感器 · 仅供参考
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-sheet" onclick="e=>e.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">记录涂抹时间</div>
+    <div class="modal-sub" id="modal-sub">确认在此时间涂抹了防晒霜？</div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="modal-confirm" onclick="confirmApply()">✅ 确认记录</button>
+      <button class="modal-btn cancel" onclick="closeModalNow()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== CONFIG ==========
+const UV_CURVE = [0,0,0.2,0.6,1.2,2.2,3.5,5.0,6.8,8.2,9.2,9.8,9.5,8.5,7.0,5.2,3.2,1.6,0.6,0.1,0,0,0,0];
+const SKIN = [
+  { name:'I型', spf:50, burnBase:8, factor:1.9 },
+  { name:'II型', spf:30, burnBase:15, factor:1.4 },
+  { name:'III型', spf:30, burnBase:25, factor:1.0 },
+  { name:'IV型', spf:15, burnBase:40, factor:0.65 }
+];
+const UV_THEMES = [
+  { max:2,  label:'极低', desc:'无需防晒，尽情享受阳光', grad:'linear-gradient(145deg,#34c759,#30d158)', urgency:'ok' },
+  { max:5,  label:'中等', desc:'建议基础防晒，外出超30分钟请涂抹', grad:'linear-gradient(145deg,#ffcc00,#ff9f0a)', urgency:'ok' },
+  { max:7,  label:'较高', desc:'必须防晒！出门前涂抹SPF30+', grad:'linear-gradient(145deg,#ff9500,#ff6b00)', urgency:'warn' },
+  { max:10, label:'很高', desc:'强烈防晒！减少11-15点户外活动', grad:'linear-gradient(145deg,#ff3b30,#d70015)', urgency:'urgent' },
+  { max:99, label:'极端', desc:'极端风险！请避免任何户外暴露', grad:'linear-gradient(145deg,#af52de,#7b2d8b)', urgency:'urgent' }
+];
+
+let env = 'outdoor'; // 'outdoor' | 'indoor'
+let skinIdx = 1;
+let logs = []; // [{time: Date, label: string}]
+let pendingApplyTime = null;
+let autoDetected = false;
+
+// ========== UV ==========
+function getUV(h, environment) {
+  const hi = Math.min(Math.max(Math.floor(h), 0), 23);
+  const frac = h - hi;
+  const v = UV_CURVE[hi] + (UV_CURVE[Math.min(hi+1,23)] - UV_CURVE[hi]) * frac;
+  return Math.round((environment === 'indoor' ? v * 0.04 : v) * 10) / 10;
+}
+
+function getTheme(uv) {
+  for (const t of UV_THEMES) if (uv <= t.max) return t;
+  return UV_THEMES[UV_THEMES.length-1];
+}
+
+function nowH() {
+  const d = new Date();
+  return d.getHours() + d.getMinutes()/60 + d.getSeconds()/3600;
+}
+
+// ========== SUNSCREEN SCHEDULE ==========
+function getSunscreenSchedule() {
+  const skin = SKIN[skinIdx];
+  const times = [];
+  // First application: when outdoor UV first hits 3
+  let firstH = null;
+  for (let h = 5; h <= 20; h += 0.25) {
+    if (getUV(h, 'outdoor') >= 3) { firstH = h - 0.5; break; }
+  }
+  if (firstH !== null) {
+    times.push(Math.max(firstH, 5.5));
+    let next = times[0] + 2;
+    while (next <= 18.5) {
+      if (getUV(next, 'outdoor') >= 1.5) times.push(next);
+      next += 2;
+    }
+  }
+  return times.slice(0, 6);
+}
+
+function fmtH(h) {
+  const hr = Math.floor(h);
+  const mn = Math.round((h % 1) * 60);
+  return `${String(hr).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
+}
+
+function fmtDate(d) {
+  return d.toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit', hour12:false });
+}
+
+function minsUntil(targetH) {
+  const cur = nowH();
+  return Math.round((targetH - cur) * 60);
+}
+
+// ========== NEXT REMINDER ==========
+function computeNextReminder() {
+  const schedule = getSunscreenSchedule();
+  const cur = nowH();
+  const skin = SKIN[skinIdx];
+
+  // If user has logged, next is 2h after last log (or schedule, whichever later)
+  let nextH = null;
+  let nextReason = '';
+
+  if (logs.length > 0) {
+    const lastLog = logs[logs.length-1];
+    const lastH = lastLog.time.getHours() + lastLog.time.getMinutes()/60;
+    const reapplyH = lastH + 2;
+    nextH = reapplyH;
+    nextReason = '补涂时间（2小时后）';
+  } else {
+    // Find next schedule slot in future
+    for (const t of schedule) {
+      if (t > cur) { nextH = t; nextReason = '首次涂抹建议'; break; }
+    }
+  }
+
+  const uv = getUV(cur, env);
+  if (env === 'indoor' || uv < 1) {
+    return { label:'室内或UV极低，无需防晒', sublabel:'如外出请提前涂抹', urgency:'low', nextH: null };
+  }
+
+  if (!nextH || nextH > 19) {
+    return { label: '今日防晒已结束', sublabel: '明天继续保持', urgency:'ok', nextH: null };
+  }
+
+  const mins = minsUntil(nextH);
+  let urgency = 'ok';
+  if (mins <= 15) urgency = 'urgent';
+  else if (mins <= 45) urgency = 'warn';
+
+  return {
+    label: fmtH(nextH),
+    sublabel: mins <= 0 ? '⚠️ 已到补涂时间' : (mins < 60 ? `${mins} 分钟后` : `约 ${Math.floor(mins/60)} 小时后`),
+    urgency,
+    nextH,
+    reason: nextReason
+  };
+}
+
+// ========== UPDATE UI ==========
+function update() {
+  const h = nowH();
+  const uv = getUV(h, env);
+  const theme = getTheme(uv);
+  const skin = SKIN[skinIdx];
+
+  // Hero card
+  document.getElementById('uv-hero').style.background = theme.grad;
+  document.getElementById('uv-num').textContent = uv.toFixed(1);
+  document.getElementById('uv-badge').textContent = theme.label;
+  document.getElementById('uv-env-badge').textContent = env === 'indoor' ? '🏠 室内' : '☀️ 室外';
+  document.getElementById('uv-desc').textContent = env === 'indoor' ? '玻璃过滤约96%紫外线，室内几乎无风险' : theme.desc;
+
+  // Burn time
+  const burnBadge = document.getElementById('burn-badge');
+  if (uv > 0.5 && env === 'outdoor') {
+    burnBadge.style.display = 'block';
+    const mins = Math.round(skin.burnBase * 6 / Math.max(uv, 0.1) / skin.factor);
+    document.getElementById('burn-num').textContent = mins > 120 ? '>120' : mins;
+  } else {
+    burnBadge.style.display = 'none';
+  }
+
+  // SPF badge
+  document.getElementById('spf-badge').textContent = `建议 SPF ${skin.spf}+`;
+
+  // Apply button
+  const applyBtn = document.getElementById('apply-btn');
+  const lastLog = logs.length > 0 ? logs[logs.length-1] : null;
+  const lastH = lastLog ? (lastLog.time.getHours() + lastLog.time.getMinutes()/60) : null;
+  const justApplied = lastH && (h - lastH) < 0.1;
+  applyBtn.className = 'apply-btn' + (justApplied ? ' applied' : '') + (uv < 1 || env === 'indoor' ? ' low-uv' : '');
+  document.getElementById('apply-btn-text').textContent = justApplied ? '已记录 ✓' : (uv < 1 || env === 'indoor' ? '当前无需防晒' : '我已涂好防晒霜');
+
+  // Next reminder
+  const next = computeNextReminder();
+  const banner = document.getElementById('next-banner');
+  banner.className = 'next-banner ' + (next.urgency || 'ok');
+  document.getElementById('next-time').textContent = next.label;
+  document.getElementById('next-in').textContent = next.sublabel || '';
+
+  // Render logs
+  renderLogs(h);
+
+  // Timeline
+  renderTimeline(h);
+
+  // Stats
+  let cumDose = 0;
+  for (let hh = 5; hh < h; hh += 0.25) cumDose += getUV(hh, env) * 0.25;
+  const pct = Math.min(100, Math.round(cumDose / 28 * 100));
+  document.getElementById('stat-dose').textContent = pct + '%';
+  const burnMins = uv > 0.5 ? Math.round(skin.burnBase * 6 / uv / skin.factor) : null;
+  document.getElementById('stat-burn').textContent = !burnMins ? '不限' : burnMins > 120 ? '>2小时' : burnMins + '分钟';
+  document.getElementById('stat-count').textContent = logs.length;
+
+  // Peak UV
+  let peak = 0, peakH = 12;
+  for (let hh = 5; hh <= 19; hh += 0.25) { const v = getUV(hh,'outdoor'); if (v > peak) { peak = v; peakH = hh; } }
+  document.getElementById('stat-peak').textContent = fmtH(peakH);
+
+  // Damage
+  const sf = skin.factor * (env === 'indoor' ? 0.04 : 1);
+  setDmg('d-red', Math.min(100, uv * 8 * sf));
+  setDmg('d-tan', Math.min(100, uv * 7 * sf));
+  setDmg('d-dna', Math.min(100, uv * 6 * sf * 0.8));
+  setDmg('d-age', Math.min(100, uv * 5 * sf * 0.9));
+
+  // Recs
+  renderRecs(uv, env);
+
+  // Env pill
+  const pill = document.getElementById('env-pill');
+  pill.className = 'env-pill' + (env === 'indoor' ? ' indoor' : '');
+  document.getElementById('env-label').textContent = env === 'indoor' ? '室内' : '室外';
+}
+
+function setDmg(id, pct) {
+  document.getElementById(id).style.width = pct + '%';
+  const labels = ['极低','低','中','高','极高'];
+  const idx = pct < 15 ? 0 : pct < 35 ? 1 : pct < 55 ? 2 : pct < 75 ? 3 : 4;
+  document.getElementById(id+'-v').textContent = labels[idx];
+}
+
+// ========== LOG RENDER ==========
+function renderLogs(h) {
+  const schedule = getSunscreenSchedule();
+  const list = document.getElementById('log-list');
+
+  // Build combined: actual logs + future schedule slots
+  let html = '';
+
+  // Actual logs (newest first)
+  if (logs.length === 0 && schedule.length === 0) {
+    html = '<div class="empty-log">点击上方按钮记录涂抹时间</div>';
+    list.innerHTML = html;
+    return;
+  }
+
+  // Actual logs
+  [...logs].reverse().forEach((log, i) => {
+    const t = fmtDate(log.time);
+    const idx = logs.length - 1 - i;
+    html += `<div class="log-item${i===0?' new-flash':''}">
+      <div class="log-icon">🧴</div>
+      <div class="log-content">
+        <div class="log-time">${t}</div>
+        <div class="log-meta">${log.label}</div>
+      </div>
+      <span class="log-check">✓</span>
+      <span class="log-del" onclick="deleteLog(${idx})">删除</span>
+    </div>`;
+  });
+
+  // Upcoming schedule (not yet logged, in the future)
+  if (env === 'outdoor') {
+    const futureSlots = schedule.filter(sh => sh > h + 0.05);
+    if (futureSlots.length > 0 && logs.length > 0) {
+      html += `<div style="height:0.5px;background:var(--separator);margin:0 18px;"></div>`;
+    }
+    futureSlots.slice(0, 3).forEach(sh => {
+      const mins = minsUntil(sh);
+      const timeLabel = fmtH(sh);
+      const subLabel = mins < 60 ? `${mins} 分钟后` : `约 ${Math.floor(mins/60)} 小时后`;
+      html += `<div class="log-item">
+        <div class="log-icon past">🕐</div>
+        <div class="log-content">
+          <div class="log-time past">${timeLabel}</div>
+          <div class="log-meta">建议补涂 · ${subLabel}</div>
+        </div>
+        <span class="log-future">›</span>
+      </div>`;
+    });
+  }
+
+  if (!html) html = '<div class="empty-log">点击上方按钮记录涂抹时间</div>';
+  list.innerHTML = html;
+}
+
+// ========== TIMELINE ==========
+function renderTimeline(currentH) {
+  const slots = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+  const maxUV = 10.5;
+  const bars = document.getElementById('uv-bars');
+  bars.innerHTML = '';
+
+  slots.forEach(h => {
+    const uv = getUV(h, env);
+    const pct = Math.max(5, (uv / maxUV) * 100);
+    const theme = getTheme(uv);
+    const isNow = Math.abs(h - currentH) < 0.7;
+    const isLog = logs.some(l => Math.abs(l.time.getHours() - h) < 0.5);
+    const gradColor = uv < 2 ? 'var(--green)' : uv < 5 ? 'var(--yellow)' : uv < 7 ? 'var(--orange)' : uv < 10 ? 'var(--red)' : 'var(--purple)';
+
+    const col = document.createElement('div');
+    col.className = 'uv-bar-col';
+    col.innerHTML = `
+      <div class="uv-bar${isNow?' now-marker':''}" 
+           style="height:${pct}%;background:${gradColor};opacity:${isNow?1:0.55}; ${isNow ? 'box-shadow:0 0 0 2px rgba(0,0,0,0.15)' : ''}; ${isLog ? 'outline:2px solid var(--green);outline-offset:1px' : ''}">
+      </div>
+      <div class="uv-bar-lbl${isNow?' now':''}">${h < 10 ? h : h}</div>
+    `;
+    bars.appendChild(col);
+  });
+}
+
+// ========== RECS ==========
+function renderRecs(uv, environment) {
+  const recs = [];
+  if (environment === 'indoor') {
+    recs.push(['🪟','靠窗久坐时仍有少量UVA穿透，久坐建议薄涂SPF15']);
+    recs.push(['💡','室内UV几乎为零，无需担心晒伤']);
+    recs.push(['🌿','外出前记得提前30分钟涂好防晒霜']);
+  } else {
+    if (uv < 2) {
+      recs.push(['🌅','此时UV极弱，是晨跑的最佳时段']);
+      recs.push(['😊','无需防晒产品，适量日晒有助维生素D合成']);
+    }
+    if (uv >= 2) recs.push(['🧴',`出门前30分钟涂抹SPF${SKIN[skinIdx].spf}+防晒霜，覆盖到耳朵、脖子`]);
+    if (uv >= 4) recs.push(['👒','宽檐帽可减少约40%的面部UV暴露']);
+    if (uv >= 4) recs.push(['🕶️','选择UV400认证太阳镜，保护眼睛和眼周皮肤']);
+    if (uv >= 6) recs.push(['🌂','遮阳伞可减少约70%的UV直接照射']);
+    if (uv >= 6) recs.push(['🥤','高UV下皮肤更易失水，及时补充水分']);
+    if (uv >= 8) recs.push(['🏠','建议11:00–15:00尽量待在阴凉处或室内']);
+    if (uv >= 3) recs.push(['🔄','每2小时补涂一次防晒霜，游泳/出汗后立即补涂']);
+  }
+  const card = document.getElementById('rec-card');
+  card.innerHTML = recs.map(r => `
+    <div class="rec-row">
+      <div class="rec-ico">${r[0]}</div>
+      <div class="rec-text">${r[1]}</div>
+    </div>`).join('');
+}
+
+// ========== APPLY / LOG ==========
+function onApply(e) {
+  // ripple
+  const btn = document.getElementById('apply-btn');
+  const rect = btn.getBoundingClientRect();
+  const rip = document.createElement('div');
+  rip.className = 'apply-ripple';
+  rip.style.cssText = `left:${e.clientX-rect.left-20}px;top:${e.clientY-rect.top-20}px;width:40px;height:40px`;
+  btn.appendChild(rip);
+  setTimeout(() => rip.remove(), 600);
+
+  // Show modal
+  const now = new Date();
+  pendingApplyTime = now;
+  document.getElementById('modal-sub').textContent = `记录 ${fmtDate(now)} 涂抹了防晒霜`;
+  document.getElementById('modal').classList.add('show');
+}
+
+function confirmApply() {
+  if (!pendingApplyTime) return;
+  const log = { time: pendingApplyTime, label: `SPF ${SKIN[skinIdx].spf}+ · 有效约2小时` };
+  logs.push(log);
+  pendingApplyTime = null;
+  closeModalNow();
+  showToast(`✅ 已记录 ${fmtDate(log.time)}`);
+  update();
+}
+
+function deleteLog(idx) {
+  logs.splice(idx, 1);
+  showToast('已删除记录');
+  update();
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalNow();
+}
+function closeModalNow() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+// ========== ENV DETECTION ==========
+function detectEnvironment() {
+  // Use ambient light sensor if available
+  if ('AmbientLightSensor' in window) {
+    try {
+      const sensor = new AmbientLightSensor();
+      sensor.addEventListener('reading', () => {
+        const lux = sensor.illuminance;
+        // Outdoor daylight: >1000 lux; indoor: <500 lux
+        const detected = lux > 600 ? 'outdoor' : 'indoor';
+        if (!autoDetected || detected !== env) {
+          autoDetected = true;
+          setEnv(detected, `光线强度 ${Math.round(lux)} lux`);
+        }
+      });
+      sensor.start();
+      return;
+    } catch(e) {}
+  }
+
+  // Fallback: use time of day heuristic (morning/evening → likely indoor)
+  setTimeout(() => {
+    const h = nowH();
+    // Simple heuristic: working hours on weekdays → likely outdoor possible
+    const guess = (h >= 7 && h <= 19) ? 'outdoor' : 'indoor';
+    if (!autoDetected) {
+      autoDetected = true;
+      setEnv(guess, '基于时段估算');
+    }
+    hideBanner();
+  }, 2200);
+}
+
+function setEnv(e, reason) {
+  env = e;
+  hideBanner();
+  update();
+  if (reason) showToast(`${e === 'indoor' ? '🏠 室内' : '☀️ 室外'} · ${reason}`);
+}
+
+function toggleEnv() {
+  env = env === 'outdoor' ? 'indoor' : 'outdoor';
+  autoDetected = true;
+  update();
+  showToast(env === 'indoor' ? '🏠 已切换为室内' : '☀️ 已切换为室外');
+}
+
+function hideBanner() {
+  const b = document.getElementById('detect-banner');
+  b.style.transition = 'opacity 0.4s, max-height 0.4s';
+  b.style.opacity = '0';
+  b.style.maxHeight = '0';
+  b.style.overflow = 'hidden';
+  b.style.marginTop = '0';
+  b.style.padding = '0';
+}
+
+// ========== SKIN ==========
+function setSkin(i) {
+  skinIdx = i;
+  document.querySelectorAll('.skin-option').forEach((b,j) => b.classList.toggle('active', j===i));
+  update();
+}
+
+// ========== TOAST ==========
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ========== CLOCK ==========
+function tick() {
+  const now = new Date();
+  document.getElementById('status-time').textContent = now.toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit', hour12:false });
+  update();
+}
+
+// ========== INIT ==========
+detectEnvironment();
+tick();
+setInterval(tick, 10000);
+</script>
+</body>
+</html>
