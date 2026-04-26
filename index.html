@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🚅 Shinkansen Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f5f3ef;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --muted: #6b6b6b;
+  --border: rgba(0,0,0,0.09);
+  --accent: #d0421b;
+  --accent-bg: #fdf2ef;
+  --blue: #1a4fa0;
+  --blue-bg: #eef3fb;
+  --green: #1a6e3c;
+  --green-bg: #edf7f2;
+  --amber: #8a5c00;
+  --amber-bg: #fdf8ee;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; }
+
+.header { background: var(--accent); color: white; padding: 20px 16px 16px; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+.header p { font-size: 12px; opacity: 0.85; }
+
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex-shrink: 0; padding: 6px 14px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.4); font-size: 12px; font-weight: 500; cursor: pointer; background: transparent; color: rgba(255,255,255,0.8); transition: all 0.15s; }
+.tab.active { background: white; color: var(--accent); border-color: white; }
+
+.content { padding: 14px 14px 80px; max-width: 600px; margin: 0 auto; }
+.section { display: none; }
+.section.active { display: block; }
+
+.step-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 12px; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--text); color: white; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-num.red { background: var(--accent); }
+.step-num.blue { background: var(--blue); }
+.step-num.green { background: var(--green); }
+.step-num.amber { background: var(--amber); }
+.step-body { flex: 1; min-width: 0; }
+.step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+.step-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+.tip { background: var(--blue-bg); border-left: 3px solid var(--blue); border-radius: 0 6px 6px 0; padding: 9px 12px; margin-top: 9px; font-size: 12px; color: var(--blue); line-height: 1.55; }
+.warn { background: var(--amber-bg); border-left: 3px solid var(--amber); border-radius: 0 6px 6px 0; padding: 9px 12px; margin-top: 9px; font-size: 12px; color: var(--amber); line-height: 1.55; }
+.good { background: var(--green-bg); border-left: 3px solid var(--green); border-radius: 0 6px 6px 0; padding: 9px 12px; margin-top: 9px; font-size: 12px; color: var(--green); line-height: 1.55; }
+
+.screen-mock { background: #1a1a2e; border-radius: 8px; padding: 11px 12px; margin-top: 9px; font-size: 12px; color: #eee; font-family: 'DM Mono', monospace; line-height: 1.8; }
+.screen-mock .label { font-size: 10px; color: #666; text-align: center; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+.btn-row { display: flex; gap: 5px; flex-wrap: wrap; margin: 5px 0; }
+.sm-btn { background: #2d3a6e; border: 1px solid #445; border-radius: 5px; padding: 4px 9px; color: #aaccff; font-size: 11px; font-family: 'DM Mono', monospace; }
+.sm-btn.sel { background: var(--accent); border-color: var(--accent); color: white; }
+
+.line-table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+.line-table th { text-align: left; color: var(--muted); font-weight: 500; padding: 10px 10px; border-bottom: 1px solid var(--border); font-size: 11px; background: var(--bg); }
+.line-table td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; line-height: 1.5; }
+.line-table tr:last-child td { border-bottom: none; }
+.line-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; color: white; font-family: 'DM Mono', monospace; }
+
+.tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 999px; margin-right: 3px; margin-bottom: 3px; font-weight: 500; }
+.tag-blue { background: var(--blue-bg); color: var(--blue); }
+.tag-amber { background: var(--amber-bg); color: var(--amber); }
+.tag-green { background: var(--green-bg); color: var(--green); }
+.tag-red { background: var(--accent-bg); color: var(--accent); }
+
+.platform-box { background: var(--bg); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 8px; }
+.pl-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.pl-row:last-child { border-bottom: none; }
+.pl-label { font-size: 11px; color: var(--muted); width: 75px; flex-shrink: 0; }
+
+/* Route Planner */
+.route-form { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; }
+.route-form label { font-size: 12px; font-weight: 500; color: var(--muted); display: block; margin-bottom: 5px; margin-top: 12px; }
+.route-form label:first-of-type { margin-top: 0; }
+.route-form select, .route-form input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); appearance: none; -webkit-appearance: none; }
+.route-form select:focus, .route-form input:focus { outline: none; border-color: var(--accent); }
+.plan-btn { width: 100%; margin-top: 14px; padding: 13px; border-radius: var(--radius-sm); border: none; background: var(--accent); color: white; font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.plan-btn:active { opacity: 0.85; }
+
+.route-result { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; }
+.route-result h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text); }
+.route-step { display: flex; gap: 10px; margin-bottom: 12px; position: relative; }
+.route-step:not(:last-child)::after { content: ''; position: absolute; left: 13px; top: 28px; width: 2px; height: calc(100% + 2px); background: var(--border); }
+.route-dot { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; z-index: 1; }
+.route-dot.dep { background: var(--accent-bg); border: 2px solid var(--accent); }
+.route-dot.arr { background: var(--blue-bg); border: 2px solid var(--blue); }
+.route-dot.mid { background: var(--bg); border: 2px solid var(--border); }
+.route-info { flex: 1; padding-top: 2px; }
+.route-info strong { font-size: 14px; display: block; margin-bottom: 2px; }
+.route-info small { font-size: 12px; color: var(--muted); }
+
+.price-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--accent-bg); color: var(--accent); padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-top: 4px; }
+
+/* Ticket Scanner */
+.scanner-area { background: var(--card); border-radius: var(--radius); border: 2px dashed var(--border); padding: 24px 16px; text-align: center; margin-bottom: 12px; cursor: pointer; }
+.scanner-area:active { background: var(--bg); }
+.scanner-icon { font-size: 40px; margin-bottom: 10px; }
+.scanner-area p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.scanner-area .hint { font-size: 12px; color: var(--accent); margin-top: 6px; font-weight: 500; }
+#ticket-file { display: none; }
+
+.ticket-parsed { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 10px; }
+.ticket-header { background: var(--accent); color: white; padding: 10px 14px; font-size: 13px; font-weight: 600; }
+.ticket-fields { padding: 12px 14px; }
+.ticket-field { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.ticket-field:last-child { border-bottom: none; }
+.ticket-field .fl { color: var(--muted); font-size: 12px; }
+.ticket-field .fv { font-weight: 500; color: var(--text); }
+.ticket-field .fv.highlight { color: var(--accent); }
+
+.action-guide { background: var(--blue-bg); border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 10px; }
+.action-guide h4 { font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 8px; }
+.action-step { display: flex; gap: 8px; margin-bottom: 7px; font-size: 12px; color: var(--blue); line-height: 1.5; }
+.action-num { width: 18px; height: 18px; border-radius: 50%; background: var(--blue); color: white; font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+.loading-box { text-align: center; padding: 30px; color: var(--muted); font-size: 13px; }
+.spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-box { background: var(--accent-bg); border-radius: var(--radius-sm); padding: 12px; font-size: 13px; color: var(--accent); text-align: center; }
+
+/* ai chat result */
+.ai-result { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px 16px; font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; }
+.ai-result strong { font-weight: 600; }
+
+.section-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; margin-top: 16px; }
+.section-label:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <span style="font-size:24px;">🚅</span>
+    <div>
+      <h1>Shinkansen Guide</h1>
+      <p>Buy tickets · Plan routes · Read your ticket</p>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('buy',this)">Buying tickets</div>
+    <div class="tab" onclick="switchTab('lines',this)">Lines</div>
+    <div class="tab" onclick="switchTab('seats',this)">Seat types</div>
+    <div class="tab" onclick="switchTab('gate',this)">Gates & platforms</div>
+    <div class="tab" onclick="switchTab('route',this)">Route planner</div>
+    <div class="tab" onclick="switchTab('scan',this)">Read my ticket</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- BUYING TICKETS -->
+  <div class="section active" id="sec-buy">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Find the right machine</div>
+        <div class="step-desc">Look for green machines labeled <b>みどりの窓口券売機</b> or blue JR multi-function machines with a large touchscreen. Orange IC card machines only work for local trains.</div>
+        <div class="tip">Press <b>[English]</b> in the top-right corner when the machine starts up.</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Select "Shinkansen" on the main menu</div>
+        <div class="step-desc">Tap "Shinkansen" or "Express / Limited Express Tickets" from the home screen.</div>
+        <div class="screen-mock">
+          <div class="label">Main menu</div>
+          <div class="btn-row">
+            <div class="sm-btn sel">🚄 Shinkansen</div>
+            <div class="sm-btn">IC Card</div>
+            <div class="sm-btn">Local trains</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Enter your destination</div>
+        <div class="step-desc">Type in romaji: TOKYO, KYOTO, HIROSHIMA, HAKATA, etc. For Osaka, type <b>SHIN-OSAKA</b> — that's where Shinkansen stops, not regular Osaka station.</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Choose your train & departure time</div>
+        <div class="step-desc">A list sorted by departure time appears showing train name, departure, and arrival. Tap your preferred train.</div>
+        <div class="warn">⚠ Nozomi and Mizuho are NOT covered by JR Pass. Select Hikari or Sakura instead if using JR Pass.</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Choose seat type</div>
+        <div class="step-desc">You'll see three options:</div>
+        <div class="screen-mock">
+          <div class="label">Select seat type</div>
+          <div class="btn-row">
+            <div class="sm-btn">自由席 · Unreserved</div>
+            <div class="sm-btn sel">指定席 · Reserved</div>
+            <div class="sm-btn">グリーン車 · Green Car</div>
+          </div>
+        </div>
+        <div class="tip">For first-timers: pick <b>指定席 (reserved)</b>. You get a guaranteed assigned seat.</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">Pick your seat on the map</div>
+        <div class="step-desc">White = available, gray = taken. A/E are window seats. D-E side often faces Mt. Fuji (Tokyo↔Nagoya).</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <div class="step-title">Pay</div>
+        <div class="step-desc">Cash (¥1000, ¥5000, ¥10000), credit cards (chip first), or Suica IC card. If card fails, try the staffed window: <b>みどりの窓口</b>.</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num green">8</div>
+      <div class="step-body">
+        <div class="step-title">Take BOTH tickets</div>
+        <div class="step-desc">Two tickets come out: <b>乗車券 (base fare)</b> and <b>特急券 (Shinkansen supplement)</b>. You need both at the gate — don't lose either one.</div>
+        <div class="good">✓ Done! Now use the "Gates & platforms" tab to board.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINES -->
+  <div class="section" id="sec-lines">
+    <p style="font-size:13px; color:var(--muted); margin-bottom:10px;">At the machine, just select your destination — you don't need to know the line name. This table is for reference.</p>
+    <table class="line-table">
+      <tr>
+        <th>Line</th>
+        <th>Route</th>
+        <th>Trains</th>
+      </tr>
+      <tr>
+        <td><span class="line-badge" style="background:#0072bc;">東海道</span></td>
+        <td>Tokyo → Nagoya → Kyoto → Shin-Osaka</td>
+        <td><span class="tag tag-red">Nozomi*</span><span class="tag tag-blue">Hikari</span><span class="tag">Kodama</span></td>
+      </tr>
+      <tr>
+        <td><span class="line-badge" style="background:#e60012;">山陽</span></td>
+        <td>Shin-Osaka → Hiroshima → Hakata</td>
+        <td><span class="tag tag-red">Nozomi*</span><span class="tag tag-blue">Hikari</span><span class="tag">Sakura</span><span class="tag">Kodama</span></td>
+      </tr>
+      <tr>
+        <td><span class="line-badge" style="background:#009944;">東北</span></td>
+        <td>Tokyo → Sendai → Morioka → Aomori</td>
+        <td><span class="tag tag-blue">Hayabusa</span><span class="tag">Yamabiko</span><span class="tag">Nasuno</span></td>
+      </tr>
+      <tr>
+        <td><span class="line-badge" style="background:#e5841b;">北陸</span></td>
+        <td>Tokyo → Nagano → Kanazawa → Tsuruga</td>
+        <td><span class="tag tag-blue">Kagayaki</span><span class="tag">Hakutaka</span><span class="tag">Asama</span></td>
+      </tr>
+      <tr>
+        <td><span class="line-badge" style="background:#9b59b6;">九州</span></td>
+        <td>Hakata → Kumamoto → Kagoshima-Chūō</td>
+        <td><span class="tag tag-red">Mizuho*</span><span class="tag">Sakura</span><span class="tag">Tsubame</span></td>
+      </tr>
+      <tr>
+        <td><span class="line-badge" style="background:#c0392b;">上越</span></td>
+        <td>Tokyo → Echigo-Yuzawa → Niigata</td>
+        <td><span class="tag">Toki</span><span class="tag">Tanigawa</span></td>
+      </tr>
+    </table>
+    <div class="warn" style="margin-top:10px;">* Nozomi & Mizuho: fastest trains but NOT covered by JR Pass.</div>
+  </div>
+
+  <!-- SEATS -->
+  <div class="section" id="sec-seats">
+    <div class="step-card">
+      <div class="step-num" style="background:#888;">自</div>
+      <div class="step-body">
+        <div class="step-title">自由席 · Unreserved (cheaper)</div>
+        <div class="step-desc">Sit anywhere in designated cars (usually 1–3 or 13–16). No seat guarantee. A few hundred yen cheaper.</div>
+        <div class="warn">⚠ On holidays and Golden Week, these cars fill completely. You may stand for hours.</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num blue">指</div>
+      <div class="step-body">
+        <div class="step-title">指定席 · Reserved (recommended)</div>
+        <div class="step-desc">Your specific car + row + seat is assigned. Your ticket shows e.g. <b>7号車 12D</b> = Car 7, Seat 12D. A few hundred yen more than unreserved.</div>
+        <div class="tip">Seat layout (2+3 rows):<br>A = window left · B = middle left · C = aisle left<br>D = aisle right · E = window right</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num green">グ</div>
+      <div class="step-body">
+        <div class="step-title">グリーン車 · Green Car (first class)</div>
+        <div class="step-desc">Wider seats (2+2), more recline, quieter. Significantly more expensive. Great for long overnight-ish journeys.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GATES & PLATFORMS -->
+  <div class="section" id="sec-gate">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Find the Shinkansen entrance</div>
+        <div class="step-desc">Look for <b>新幹線</b> signs (bullet train icon). Separate from local train gates. Don't use local train gates — your ticket won't work there.</div>
+        <div class="tip">Signs in English at all major stations. Follow the bullet train icon 🚄</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Insert BOTH tickets at the gate</div>
+        <div class="step-desc">Shinkansen gates have special dual-slot readers. Insert the 乗車券 and 特急券 together (or one right after the other). Both are returned — pick them up on the other side.</div>
+        <div class="warn">⚠ Don't forget to take your tickets out the other end of the gate!</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Find your platform (NOT on your ticket!)</div>
+        <div class="step-desc">Platform number is not printed on your ticket. Check the departure boards inside the Shinkansen concourse. Find your train name + departure time.</div>
+        <div class="platform-box">
+          <div class="pl-row"><span class="pl-label">Train</span><span>のぞみ 15 · Nozomi 15</span></div>
+          <div class="pl-row"><span class="pl-label">Departure</span><span>14:33</span></div>
+          <div class="pl-row"><span class="pl-label">Destination</span><span>博多 · Hakata</span></div>
+          <div class="pl-row"><span class="pl-label">Platform</span><span style="font-weight:600; color:var(--accent);">17番線 · Track 17</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Find your car on the platform</div>
+        <div class="step-desc">Look for your car number (号車) painted on the ground markers. Stand in that queue. Trains stop at the exact same spot every time.</div>
+        <div class="tip">If your ticket says <b>7号車</b>, look for the "7" marker on the platform and queue there.</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num green">5</div>
+      <div class="step-body">
+        <div class="step-title">Board and find your seat</div>
+        <div class="step-desc">Seat numbers are on overhead displays inside the car. Row numbers increase from the front. A = window left, E = window right.</div>
+        <div class="good">✓ Shinkansen is extremely punctual. Board at least 3 minutes before departure.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUTE PLANNER -->
+  <div class="section" id="sec-route">
+    <div class="route-form">
+      <label>From (departure)</label>
+      <select id="from-station">
+        <option value="">Select station...</option>
+        <option>Tokyo</option>
+        <option>Shinagawa</option>
+        <option>Shin-Yokohama</option>
+        <option>Nagoya</option>
+        <option>Kyoto</option>
+        <option>Shin-Osaka</option>
+        <option>Shin-Kobe</option>
+        <option>Hiroshima</option>
+        <option>Hakata (Fukuoka)</option>
+        <option>Kagoshima-Chūō</option>
+        <option>Sendai</option>
+        <option>Sapporo</option>
+        <option>Kanazawa</option>
+        <option>Nagano</option>
+      </select>
+      <label>To (destination)</label>
+      <select id="to-station">
+        <option value="">Select station...</option>
+        <option>Tokyo</option>
+        <option>Shinagawa</option>
+        <option>Shin-Yokohama</option>
+        <option>Nagoya</option>
+        <option>Kyoto</option>
+        <option>Shin-Osaka</option>
+        <option>Shin-Kobe</option>
+        <option>Hiroshima</option>
+        <option>Hakata (Fukuoka)</option>
+        <option>Kagoshima-Chūō</option>
+        <option>Sendai</option>
+        <option>Sapporo</option>
+        <option>Kanazawa</option>
+        <option>Nagano</option>
+      </select>
+      <label>Date</label>
+      <input type="date" id="travel-date">
+      <label>Passengers</label>
+      <select id="pax">
+        <option value="1">1 person</option>
+        <option value="2">2 people</option>
+        <option value="3">3 people</option>
+        <option value="4">4 people</option>
+      </select>
+      <label>JR Pass?</label>
+      <select id="jrpass">
+        <option value="no">No (buying full ticket)</option>
+        <option value="yes">Yes (have JR Pass)</option>
+      </select>
+      <button class="plan-btn" onclick="planRoute()">Plan my route →</button>
+    </div>
+    <div id="route-result-area"></div>
+  </div>
+
+  <!-- TICKET SCANNER -->
+  <div class="section" id="sec-scan">
+    <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Take a photo of your Shinkansen ticket or upload a screenshot. AI will read the key info and tell you exactly what to do next.</p>
+    <div class="scanner-area" onclick="document.getElementById('ticket-file').click()">
+      <div class="scanner-icon">🎫</div>
+      <p>Tap to upload a photo of your ticket</p>
+      <p class="hint">Supports JPG, PNG, screenshot</p>
+    </div>
+    <input type="file" id="ticket-file" accept="image/*" onchange="scanTicket(this)">
+    <div id="scan-result"></div>
+  </div>
+
+</div>
+
+<script>
+const ROUTES = {
+  "Tokyo-Kyoto": { time: "2h 15m", price: 13600, train: "Nozomi 301 / Hikari 503", jrprice: 0, stops: ["Tokyo", "Shin-Yokohama", "(Nagoya)", "Kyoto"] },
+  "Tokyo-Shin-Osaka": { time: "2h 30m", price: 13870, train: "Nozomi 5 / Hikari 501", jrprice: 0, stops: ["Tokyo", "Shin-Yokohama", "(Nagoya)", "Kyoto", "Shin-Osaka"] },
+  "Tokyo-Nagoya": { time: "1h 40m", price: 10560, train: "Nozomi 1 / Hikari 501", jrprice: 0, stops: ["Tokyo", "Shin-Yokohama", "Nagoya"] },
+  "Tokyo-Hiroshima": { time: "3h 50m", price: 18050, train: "Nozomi 9 / Hikari 507", jrprice: 0, stops: ["Tokyo", "Shin-Yokohama", "Nagoya", "Kyoto", "Shin-Osaka", "Hiroshima"] },
+  "Tokyo-Hakata (Fukuoka)": { time: "5h 0m", price: 22220, train: "Nozomi 1 / Hikari 501", jrprice: 0, stops: ["Tokyo", "Nagoya", "Shin-Osaka", "Hiroshima", "Hakata"] },
+  "Shin-Osaka-Hiroshima": { time: "1h 10m", price: 9440, train: "Nozomi / Sakura", jrprice: 0, stops: ["Shin-Osaka", "Shin-Kobe", "Hiroshima"] },
+  "Shin-Osaka-Hakata (Fukuoka)": { time: "2h 20m", price: 15640, train: "Nozomi / Sakura 555", jrprice: 0, stops: ["Shin-Osaka", "Hiroshima", "Hakata"] },
+  "Tokyo-Sendai": { time: "1h 35m", price: 11410, train: "Hayabusa 1", jrprice: 0, stops: ["Tokyo", "Ueno", "Omiya", "Sendai"] },
+  "Tokyo-Kanazawa": { time: "2h 30m", price: 14380, train: "Kagayaki 503", jrprice: 0, stops: ["Tokyo", "Omiya", "Nagano", "Toyama", "Kanazawa"] },
+  "Tokyo-Nagano": { time: "1h 35m", price: 8340, train: "Kagayaki / Hakutaka", jrprice: 0, stops: ["Tokyo", "Omiya", "Nagano"] },
+};
+
+function planRoute() {
+  const from = document.getElementById('from-station').value;
+  const to = document.getElementById('to-station').value;
+  const pax = parseInt(document.getElementById('pax').value);
+  const hasPass = document.getElementById('jrpass').value === 'yes';
+  const area = document.getElementById('route-result-area');
+
+  if (!from || !to) { area.innerHTML = '<div class="error-box">Please select both departure and destination stations.</div>'; return; }
+  if (from === to) { area.innerHTML = '<div class="error-box">Departure and destination are the same!</div>'; return; }
+
+  const key1 = from + '-' + to;
+  const key2 = to + '-' + from;
+  let route = ROUTES[key1] || ROUTES[key2];
+
+  if (!route) {
+    area.innerHTML = `<div class="route-result">
+      <h3>Route: ${from} → ${to}</h3>
+      <div class="warn" style="margin-top:0;">This route combination isn't in our database yet. For accurate schedules and prices, use <b>Jorudan</b> or <b>Hyperdia</b> apps, or check the machine at the station.</div>
+      <div class="tip" style="margin-top:8px;">At the ticket machine: select Shinkansen → enter destination → select your train and seat type.</div>
+    </div>`;
+    return;
+  }
+
+  const isReversed = !!ROUTES[key2] && !ROUTES[key1];
+  const stops = isReversed ? [...route.stops].reverse() : route.stops;
+  const totalPrice = route.price * pax;
+  const passNote = hasPass ? '<div class="good" style="margin-top:8px;">✓ JR Pass covers this route. Look for Hikari or Sakura trains (NOT Nozomi/Mizuho).</div>' : '';
+  const priceSection = hasPass ? '' : `<div class="price-badge">¥${totalPrice.toLocaleString()} total${pax > 1 ? ` (${pax} people)` : ''} · reserved seat</div>`;
+
+  const stopsHtml = stops.map((s, i) => {
+    const cls = i === 0 ? 'dep' : i === stops.length - 1 ? 'arr' : 'mid';
+    const icon = i === 0 ? '🔴' : i === stops.length - 1 ? '🔵' : '•';
+    const note = i === 0 ? `<small>Departure</small>` : i === stops.length - 1 ? `<small>Arrival · ${route.time} total</small>` : `<small>Passes through</small>`;
+    return `<div class="route-step"><div class="route-dot ${cls}">${icon}</div><div class="route-info"><strong>${s}</strong>${note}</div></div>`;
+  }).join('');
+
+  area.innerHTML = `<div class="route-result">
+    <h3>${from} → ${to}</h3>
+    ${stopsHtml}
+    <div style="margin-top:4px;">
+      <div style="font-size:13px; color:var(--muted); margin-bottom:4px;">Recommended train: <b>${route.train}</b></div>
+      ${priceSection}
+    </div>
+    ${passNote}
+    <div class="action-guide" style="margin-top:12px;">
+      <h4>At the station — what to do:</h4>
+      <div class="action-step"><div class="action-num">1</div><span>Find the Shinkansen ticket machine (green or blue large touchscreen)</span></div>
+      <div class="action-step"><div class="action-num">2</div><span>Press English → Shinkansen → type "${to.split(' ')[0].toUpperCase()}"</span></div>
+      <div class="action-step"><div class="action-num">3</div><span>Select ${hasPass ? 'Hikari or Sakura (not Nozomi)' : route.train.split('/')[0].trim()} → choose 指定席 (reserved)</span></div>
+      <div class="action-step"><div class="action-num">4</div><span>Pay${hasPass ? ' — insert JR Pass when prompted' : ` ¥${route.price.toLocaleString()} per person`} → collect BOTH tickets</span></div>
+      <div class="action-step"><div class="action-num">5</div><span>Go to 新幹線 gate → insert both tickets → check departure board for platform</span></div>
+    </div>
+  </div>`;
+}
+
+async function scanTicket(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const area = document.getElementById('scan-result');
+  area.innerHTML = '<div class="loading-box"><div class="spinner"></div>Reading your ticket with AI...</div>';
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64 = e.target.result.split(',')[1];
+    const mediaType = file.type || 'image/jpeg';
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+              { type: 'text', text: `You are a Shinkansen ticket expert. Read this Japanese train ticket image and extract all key information. Respond ONLY with a JSON object (no markdown, no backticks) with these exact fields:
+{
+  "type": "ticket type in English e.g. Reserved Shinkansen / Unreserved / Green Car",
+  "from": "departure station in English",
+  "to": "destination station in English",
+  "date": "travel date",
+  "time": "departure time if shown",
+  "train": "train name and number if shown",
+  "car": "car number (号車) if shown, else null",
+  "seat": "seat number if shown, else null",
+  "price": "price in yen if shown",
+  "validity": "valid date range if shown",
+  "notes": "any other important info (e.g. JR Pass supplement, non-reserved, etc.)",
+  "next_steps": ["step 1 in English", "step 2", "step 3", "step 4", "step 5"]
+}
+The next_steps should be specific actionable instructions for what this person should do at the station with this ticket. If you cannot read the ticket clearly, still return JSON with your best guesses and note uncertainty in the notes field.`
+            }]
+          }]
+        })
+      });
+
+      const data = await response.json();
+      const raw = data.content.map(b => b.text || '').join('');
+      let ticket;
+      try { ticket = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+      catch(e) { throw new Error('Could not parse ticket data'); }
+
+      const fieldRows = [
+        ['Ticket type', ticket.type],
+        ['From', ticket.from],
+        ['To', ticket.to],
+        ['Date', ticket.date],
+        ['Departure', ticket.time],
+        ['Train', ticket.train],
+        ['Car', ticket.car ? `${ticket.car}号車` : null],
+        ['Seat', ticket.seat ? `<span class="highlight">${ticket.seat}</span>` : null],
+        ['Price', ticket.price ? `¥${ticket.price}` : null],
+        ['Notes', ticket.notes],
+      ].filter(([_, v]) => v).map(([l, v]) =>
+        `<div class="ticket-field"><span class="fl">${l}</span><span class="fv">${v}</span></div>`
+      ).join('');
+
+      const stepsHtml = (ticket.next_steps || []).map((s, i) =>
+        `<div class="action-step"><div class="action-num">${i+1}</div><span>${s}</span></div>`
+      ).join('');
+
+      area.innerHTML = `
+        <div class="ticket-parsed">
+          <div class="ticket-header">🎫 Your ticket — decoded</div>
+          <div class="ticket-fields">${fieldRows}</div>
+        </div>
+        ${stepsHtml ? `<div class="action-guide"><h4>What to do next:</h4>${stepsHtml}</div>` : ''}
+      `;
+    } catch(err) {
+      area.innerHTML = `<div class="error-box">Could not read the ticket. Make sure the photo is clear and well-lit, then try again.<br><small style="opacity:0.7; margin-top:4px; display:block;">${err.message}</small></div>`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// Set default date to today
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('travel-date').value = today;
+</script>
+</body>
+</html>
